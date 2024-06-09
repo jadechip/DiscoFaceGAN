@@ -32,7 +32,7 @@ def restore_weights_and_initialize():
     var_list = tf.trainable_variables()
     g_list = tf.global_variables()
 
-    # add batch normalization params into trainable variables 
+    # add batch normalization params into trainable variables
     bn_moving_vars = [g for g in g_list if 'moving_mean' in g.name]
     bn_moving_vars += [g for g in g_list if 'moving_variance' in g.name]
     var_list +=bn_moving_vars
@@ -41,12 +41,12 @@ def restore_weights_and_initialize():
     var_exp_list = [v for v in var_list if 'exp' in v.name and 'stage1' in v.name]
     var_gamma_list = [v for v in var_list if 'gamma' in v.name and 'stage1' in v.name]
     var_rot_list = [v for v in var_list if 'rot' in v.name and 'stage1' in v.name]
-    
+
     saver_id = tf.train.Saver(var_list = var_id_list,max_to_keep = 100)
     saver_exp = tf.train.Saver(var_list = var_exp_list,max_to_keep = 100)
     saver_gamma = tf.train.Saver(var_list = var_gamma_list,max_to_keep = 100)
     saver_rot = tf.train.Saver(var_list = var_rot_list,max_to_keep = 100)
-    
+
     saver_id.restore(tf.get_default_session(),'./vae/weights/id/stage1_epoch_395.ckpt')
     saver_exp.restore(tf.get_default_session(),'./vae/weights/exp/stage1_epoch_395.ckpt')
     saver_gamma.restore(tf.get_default_session(),'./vae/weights/gamma/stage1_epoch_395.ckpt')
@@ -71,8 +71,9 @@ def z_to_lambda_mapping(latents):
 def truncate_generation(Gs,inputcoeff,rate=0.7,dlatent_average_id=None):
 
     if dlatent_average_id is None:
-        url_pretrained_model_ffhq_average_w_id = 'https://drive.google.com/uc?id=17L6-ENX3NbMsS3MSCshychZETLPtJnbS'
-        with dnnlib.util.open_url(url_pretrained_model_ffhq_average_w_id, cache_dir=config.cache_dir) as f:
+        # url_pretrained_model_ffhq_average_w_id = 'https://drive.google.com/uc?id=17L6-ENX3NbMsS3MSCshychZETLPtJnbS'
+        file_path = "network-snapshot-020126-average_w_id.txt"
+        with open(file_path, 'r') as f:
             dlatent_average_id = np.loadtxt(f)
     dlatent_average_id = np.reshape(dlatent_average_id,[1,14,512]).astype(np.float32)
     dlatent_average_id = tf.constant(dlatent_average_id)
@@ -132,7 +133,8 @@ def parse_args():
 
 
 def load_Gs(url):
-    with dnnlib.util.open_url(url, cache_dir=config.cache_dir) as f:
+    file_path = "network-snapshot-020126.pkl"
+    with open(file_path, 'rb') as f:
         _G, _D, Gs = pickle.load(f)
     return Gs
 
